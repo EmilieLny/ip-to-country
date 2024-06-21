@@ -64,3 +64,26 @@ export class FirstAvailableProviderSelector
     throw new Error("No Geolocation Provider Available");
   }
 }
+
+export class IPStackGeolocationProvider implements IGeolocationProvider {
+  private counter: number = 0;
+  private timestamp: Date | null = null;
+  private maxCounter: number = 80; // 50,000/month
+
+  async getCountry(ip: string): Promise<string> {
+    this.counter++;
+    const result = await fetch(
+      `https://api.ipstack.com/${ip}?access_key=YOUR_ACCESS_KEY`
+    );
+    const data = await result.json();
+    return data.country_name;
+  }
+  isAvailable(): boolean {
+    if (!this.timestamp) return true;
+    if (Date.now() - this.timestamp.getTime() > 60 * 60 * 1000) {
+      this.timestamp = null;
+      return true;
+    }
+    return this.counter < this.maxCounter;
+  }
+}
