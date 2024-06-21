@@ -22,7 +22,7 @@ interface IGeolocationCache {
   setCountry(ip: string, country: string): Promise<void>;
 }
 
-class InMemoryGeolocationCache implements IGeolocationCache {
+export class InMemoryGeolocationCache implements IGeolocationCache {
   private cache: Record<string, string> = {};
 
   async getCountry(ip: string): Promise<string | null> {
@@ -39,7 +39,7 @@ interface IGeolocationProvider {
   isAvailable(): boolean;
 }
 
-class MockGeolocationProvider implements IGeolocationProvider {
+export class MockGeolocationProvider implements IGeolocationProvider {
   async getCountry(ip: string): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return "ISRAEL";
@@ -53,7 +53,9 @@ interface IGeolocationProviderSelector {
   getAvailableProvider(): IGeolocationProvider;
 }
 
-class FirstAvailableProviderSelector implements IGeolocationProviderSelector {
+export class FirstAvailableProviderSelector
+  implements IGeolocationProviderSelector
+{
   constructor(private providers: IGeolocationProvider[]) {}
 
   getAvailableProvider(): IGeolocationProvider {
