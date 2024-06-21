@@ -42,3 +42,13 @@ interface IGeolocationProvider {
 interface IGeolocationProviderSelector {
   getAvailableProvider(): IGeolocationProvider;
 }
+
+class FirstAvailableProviderSelector implements IGeolocationProviderSelector {
+  constructor(private providers: IGeolocationProvider[]) {}
+
+  getAvailableProvider(): IGeolocationProvider {
+    const provider = this.providers.find((p) => p.isAvailable());
+    if (provider) return provider;
+    throw new Error("No Geolocation Provider Available");
+  }
+}
