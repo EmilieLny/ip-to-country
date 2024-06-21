@@ -45,7 +45,7 @@ export class MockGeolocationProvider implements IGeolocationProvider {
     return "ISRAEL";
   }
   isAvailable(): boolean {
-    return true;
+    return Math.random() > 0.5;
   }
 }
 
@@ -95,15 +95,47 @@ class HourlyRateLimiter {
 }
 
 export class IPStackGeolocationProvider implements IGeolocationProvider {
-  private rateLimiter = new HourlyRateLimiter(80); // 50,000/month
+  private rateLimiter = new HourlyRateLimiter(80);
+  constructor(private accessKey: string) {}
 
   async getCountry(ip: string): Promise<string> {
     this.rateLimiter.increaseCounter();
     const result = await fetch(
-      `https://api.ipstack.com/${ip}?access_key=YOUR_ACCESS_KEY`
+      `https://api.ipstack.com/${ip}?access_key=${this.accessKey}`
     );
     const data = await result.json();
-    return data.country_name;
+    return data.country_code;
+  }
+  isAvailable(): boolean {
+    return !this.rateLimiter.isRateLimited;
+  }
+}
+
+export class IPifyGeolocationProvider implements IGeolocationProvider {
+  private rateLimiter = new HourlyRateLimiter(20);
+  constructor(private apiKey: string) {}
+
+  async getCountry(ip: string): Promise<string> {
+    this.rateLimiter.increaseCounter();
+    const result = await fetch(
+      `https://geo.ipify.org/api/v2/country?apiKey=${this.apiKey}&ipAddress=${ip}`
+    );
+    const data = await result.json();
+    return data.location.country;
+  }
+  isAvailable(): boolean {
+    return !this.rateLimiter.isRateLimited;
+  }
+}
+
+export class CountryIsGeolocationProvider implements IGeolocationProvider {
+  private rateLimiter = new HourlyRateLimiter(2);
+
+  async getCountry(ip: string): Promise<string> {
+    this.rateLimiter.increaseCounter();
+    const result = await fetch(`https://api.country.is/${ip}`);
+    const data = await result.json();
+    return data.country;
   }
   isAvailable(): boolean {
     return !this.rateLimiter.isRateLimited;

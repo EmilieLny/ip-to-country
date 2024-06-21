@@ -1,8 +1,10 @@
 import express from "express";
 import {
+  CountryIsGeolocationProvider,
   FirstAvailableProviderSelector,
   GeolocationService,
   IPStackGeolocationProvider,
+  IPifyGeolocationProvider,
   InMemoryGeolocationCache,
   MockGeolocationProvider,
 } from "./GeolocationService";
@@ -11,10 +13,14 @@ const app = express();
 const port = 3000;
 
 const provider = new MockGeolocationProvider();
-const ipStackProvider = new IPStackGeolocationProvider();
+const ipStackProvider = new IPStackGeolocationProvider("");
+const ipifyProvider = new IPifyGeolocationProvider("");
+const countryIsProvider = new CountryIsGeolocationProvider();
 const selector = new FirstAvailableProviderSelector([
-  provider,
+  countryIsProvider,
+  ipifyProvider,
   ipStackProvider,
+  provider,
 ]);
 const cache = new InMemoryGeolocationCache();
 const service = new GeolocationService(cache, selector);
