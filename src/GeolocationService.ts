@@ -39,6 +39,16 @@ interface IGeolocationProvider {
   isAvailable(): boolean;
 }
 
+class MockGeolocationProvider implements IGeolocationProvider {
+  async getCountry(ip: string): Promise<string> {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return "ISRAEL";
+  }
+  isAvailable(): boolean {
+    return true;
+  }
+}
+
 interface IGeolocationProviderSelector {
   getAvailableProvider(): IGeolocationProvider;
 }
