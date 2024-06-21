@@ -18,15 +18,27 @@ export class GeolocationService {
 }
 
 interface IGeolocationCache {
-  getCountry: (ip: string) => Promise<string | null>;
-  setCountry: (ip: string, country: string) => Promise<void>;
+  getCountry(ip: string): Promise<string | null>;
+  setCountry(ip: string, country: string): Promise<void>;
+}
+
+class InMemoryGeolocationCache implements IGeolocationCache {
+  private cache: Record<string, string> = {};
+
+  async getCountry(ip: string): Promise<string | null> {
+    return this.cache[ip];
+  }
+
+  async setCountry(ip: string, country: string): Promise<void> {
+    this.cache[ip] = country;
+  }
 }
 
 interface IGeolocationProvider {
-  getCountry: (ip: string) => Promise<string>;
-  isAvailable: () => boolean;
+  getCountry(ip: string): Promise<string>;
+  isAvailable(): boolean;
 }
 
 interface IGeolocationProviderSelector {
-  getAvailableProvider: () => IGeolocationProvider;
+  getAvailableProvider(): IGeolocationProvider;
 }
