@@ -65,7 +65,7 @@ export class FirstAvailableProviderSelector
   }
 }
 
-class HourlyRateLimiter {
+export class HourlyRateLimiter {
   private counter: number = 0;
   private timestamp: Date | null = null;
   constructor(private maxCounter: number) {}
@@ -79,10 +79,11 @@ class HourlyRateLimiter {
   }
 
   increaseCounter(): void {
-    this.counter++;
     if (this.isExpired) {
+      this.counter = 0;
       this.timestamp = new Date();
     }
+    this.counter++;
   }
 
   get isRateLimited(): boolean {
