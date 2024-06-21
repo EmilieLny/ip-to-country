@@ -65,13 +65,40 @@ export class FirstAvailableProviderSelector
   }
 }
 
-export class IPStackGeolocationProvider implements IGeolocationProvider {
+class HourlyRateLimiter {
   private counter: number = 0;
   private timestamp: Date | null = null;
-  private maxCounter: number = 80; // 50,000/month
+  constructor(private maxCounter: number) {}
+
+  private get isExpired(): boolean {
+    const hourInMilliseconds = 60 * 60 * 1000;
+    return (
+      !this.timestamp ||
+      Date.now() - this.timestamp.getTime() > hourInMilliseconds
+    );
+  }
+
+  increaseCounter(): void {
+    this.counter++;
+    if (this.isExpired) {
+      this.timestamp = new Date();
+    }
+  }
+
+  get isRateLimited(): boolean {
+    if (!this.timestamp) return false;
+    if (Date.now() - this.timestamp.getTime() > 60 * 60 * 1000) {
+      return false;
+    }
+    return this.counter >= this.maxCounter;
+  }
+}
+
+export class IPStackGeolocationProvider implements IGeolocationProvider {
+  private rateLimiter = new HourlyRateLimiter(80); // 50,000/month
 
   async getCountry(ip: string): Promise<string> {
-    this.counter++;
+    this.rateLimiter.increaseCounter();
     const result = await fetch(
       `https://api.ipstack.com/${ip}?access_key=YOUR_ACCESS_KEY`
     );
@@ -79,11 +106,6 @@ export class IPStackGeolocationProvider implements IGeolocationProvider {
     return data.country_name;
   }
   isAvailable(): boolean {
-    if (!this.timestamp) return true;
-    if (Date.now() - this.timestamp.getTime() > 60 * 60 * 1000) {
-      this.timestamp = null;
-      return true;
-    }
-    return this.counter < this.maxCounter;
+    return !this.rateLimiter.isRateLimited;
   }
 }
