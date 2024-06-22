@@ -42,7 +42,7 @@ interface IGeolocationProvider {
 export class MockGeolocationProvider implements IGeolocationProvider {
   async getCountry(ip: string): Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return "ISRAEL";
+    return "IL";
   }
   isAvailable(): boolean {
     return Math.random() > 0.5;
@@ -102,7 +102,7 @@ export class IPStackGeolocationProvider implements IGeolocationProvider {
   async getCountry(ip: string): Promise<string> {
     this.rateLimiter.increaseCounter();
     const result = await fetch(
-      `https://api.ipstack.com/${ip}?access_key=${this.accessKey}`
+      `http://api.ipstack.com/${ip}?access_key=${this.accessKey}`
     );
     const data = await result.json();
     return data.country_code;
