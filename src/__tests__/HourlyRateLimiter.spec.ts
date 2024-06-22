@@ -1,4 +1,4 @@
-import { HourlyRateLimiter } from "../GeolocationService";
+import { HourlyRateLimiter } from "../HourlyRateLimiter";
 
 describe("HourlyRateLimiter", () => {
   let limiter: HourlyRateLimiter;

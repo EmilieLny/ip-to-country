@@ -1,4 +1,4 @@
-import { InMemoryGeolocationCache } from "../GeolocationService";
+import { InMemoryGeolocationCache } from "../InMemoryGeolocationCache";
 
 describe("InMemoryGeolocationCache", () => {
   let cache: InMemoryGeolocationCache;
