@@ -8,6 +8,9 @@ export class CountryIsGeolocationProvider implements IGeolocationProvider {
     this.rateLimiter.increaseCounter();
     const result = await fetch(`https://api.country.is/${ip}`);
     const data = await result.json();
+    if ("error" in data) {
+      throw new Error(data.error.message || "Unexpected error");
+    }
     return data.country;
   }
   isAvailable(): boolean {

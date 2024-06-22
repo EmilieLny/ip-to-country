@@ -11,6 +11,9 @@ export class IPifyGeolocationProvider implements IGeolocationProvider {
       `https://geo.ipify.org/api/v2/country?apiKey=${this.apiKey}&ipAddress=${ip}`
     );
     const data = await result.json();
+    if ("code" in data) {
+      throw new Error(data.messages || "Unexpected error");
+    }
     return data.location.country;
   }
   isAvailable(): boolean {

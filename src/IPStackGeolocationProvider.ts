@@ -11,6 +11,9 @@ export class IPStackGeolocationProvider implements IGeolocationProvider {
       `http://api.ipstack.com/${ip}?access_key=${this.accessKey}`
     );
     const data = await result.json();
+    if ("error" in data) {
+      throw new Error(data.error.info || "Unexpected error");
+    }
     return data.country_code;
   }
   isAvailable(): boolean {
